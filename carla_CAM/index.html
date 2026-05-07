@@ -222,13 +222,13 @@
 <ul>
 <li><strong>AlexNet（高度发散与弱置信）：</strong> * 模型的 Top-1 预测与强制过滤目标（Filtered）一致，均为 <code>breakwater... (防波堤/海堤)</code>，但置信度仅为 <strong>11.37%</strong>。</li>
 <li>这表明面对 OOD (Out-of-Distribution) 的虚拟场景，AlexNet 的 Softmax 输出极其平缓，网络在多个类别间犹豫不决，“防波堤”仅仅是微弱胜出。<br />
-<img alt="plane1" src="plane1.png" /><br />
-<img alt="plane1_re" src="plane1_re.png" /></li>
+<img alt="plane1" src="images/plan1.png" />
+  <img alt="plane1" src="images/plan1_re.png" /></li>
 <li><strong>ResNet（高度确信的语义误判）：</strong></li>
 <li>模型以 <strong>61.66%</strong> 的高置信度认为画面是一列 <code>bullet train (高铁)</code>，完全偏离了我们关注的 <code>passenger car</code>（仅剩 <strong>3.56%</strong> 概率）。</li>
 <li>深层网络强制对画面中的局部特征进行了高层次的语义拟合，展现出了极强的“过度自信”。
-<img alt="plane2" src="plane2.png" /><br />
-<img alt="plane2_re" src="plane2_re.png" /></li>
+<img alt="plan2" src="images/plan2.png" /><br />
+<img alt="plan2_re" src="/images/plan2_re.png" /></li>
 </ul>
 <h4 id="3_1">3. 从“结构性偏置”视角的深度解释</h4>
 <p>这两个方案直观地展示了不同网络架构在面对虚拟渲染图像时，其<strong>归纳偏置（Inductive Bias）</strong>的失效方式。</p>
