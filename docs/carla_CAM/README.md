@@ -76,7 +76,7 @@ $$L_{Grad-CAM}^c = ReLU \left( \sum_k \alpha_k^c A^k \right)$$
   * 模型以 **61.66%** 的高置信度认为画面是一列 `bullet train (高铁)`，完全偏离了我们关注的 `passenger car`（仅剩 **3.56%** 概率）。
   * 深层网络强制对画面中的局部特征进行了高层次的语义拟合，展现出了极强的“过度自信”。
 ![plan2](images/plan2.png)  
-![plan2_re](/images/plan2_re.png)
+![plan2_re](images/plan2_re.png)
 #### 3. 从“结构性偏置”视角的深度解释
 
 这两个方案直观地展示了不同网络架构在面对虚拟渲染图像时，其**归纳偏置（Inductive Bias）**的失效方式。
