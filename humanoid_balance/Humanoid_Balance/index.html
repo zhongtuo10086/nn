@@ -81,7 +81,7 @@
 <li><strong>策略模型部署</strong>：实现预训练 SAC 模型的自动化解压、跨版本权重兼容加载、实时推理与动作输出，打通 “模型→环境→物理交互” 全流程。</li>
 <li><strong>稳定性优化</strong>：通过动作平滑、确定性推理等手段，抑制机器人高频抖动，实现从 “原地扭动” 到稳定站立 + 初步行走的性能跨越。</li>
 </ul>
-<p>#### 核心任务：在维持全身关节动力学平衡的前提下，实现人形机器人在平面场景下的稳定步态行走，兼顾运动流畅性与物理仿真真实性。</p>
+<p><strong>核心任务</strong>：在维持全身关节动力学平衡的前提下，实现人形机器人在平面场景下的稳定步态行走，兼顾运动流畅性与物理仿真真实性。</p>
 <h2 id="_4">一、主要改进与技术突破</h2>
 <h3 id="1">1. 代码架构模块化重构</h3>
 <ul>
@@ -89,8 +89,10 @@
 </ul>
 <p><strong><code>env_mujoco.py</code>（环境定义与补丁）</strong> :专注 MuJoCo 环境适配、跨版本 API 补丁、渲染参数配置，解耦环境逻辑与业务逻辑。</p>
 <p><strong><code>train.py</code>（强化学习训练）</strong>:封装 SAC 算法训练流程，包含超参数配置、日志记录、断点续训，支持多轮次对比实验。</p>
-<p><strong><code>humanoid_walk.py</code>（演示部署）</strong>:作为演示部署入口，集成模型解压、权重加载、推理循环、实时渲染，一键启动仿真。
-- 引入 <strong><code>zipfile</code> 动态解压机制</strong>，直接从 <code>.zip</code> 加载 <code>.pth</code> 权重，避免手动解压的路径混乱，提升模型分发与部署效率。</p>
+<p><strong><code>humanoid_walk.py</code>（演示部署）</strong>:作为演示部署入口，集成模型解压、权重加载、推理循环、实时渲染，一键启动仿真。</p>
+<ul>
+<li>引入 <strong><code>zipfile</code> 动态解压机制</strong>，直接从 <code>.zip</code> 加载 <code>.pth</code> 权重，避免手动解压的路径混乱，提升模型分发与部署效率。</li>
+</ul>
 <h3 id="2-mujoco">2. MuJoCo 跨版本环境适配</h3>
 <table>
 <thead>
@@ -204,10 +206,18 @@ python src/humanoid_walk.py
 </code></pre>
 <h2 id="_11">五、算法方法与后续规划</h2>
 <h3 id="51-sac">5.1 核心算法原理（SAC）</h3>
-<p>Soft Actor-Critic（SAC）是基于最大熵强化学习的离线策略算法（本项目采用双 Critic 网络 + 重参数化 Actor 网络的经典 SAC 架构，折扣因子 γ=0.99，学习率 1e-4，保证策略收敛性），核心优势在于：
-1.  <strong>最大熵目标</strong>：在优化累积奖励的同时最大化策略熵，SAC 的最大熵目标函数可平衡探索与利用，适配人形机器人 376 维高维观测 + 连续关节力矩控制的特性，相比 PPO 降低约 20% 的样本采集量，保证探索性的同时提升策略鲁棒性；
-2.  <strong>双Critic网络</strong>：缓解过估计问题，提升价值函数评估精度；
-3.  <strong>自动熵调整</strong>：自适应平衡探索（熵）与利用（奖励），无需手动调参。</p>
+<p>Soft Actor-Critic（SAC）是基于最大熵强化学习的离线策略算法（本项目采用双 Critic 网络 + 重参数化 Actor 网络的经典 SAC 架构，折扣因子 γ=0.99，学习率 1e-4，保证策略收敛性），核心优势在于：</p>
+<ol>
+<li>
+<p><strong>最大熵目标</strong>：在优化累积奖励的同时最大化策略熵，SAC 的最大熵目标函数可平衡探索与利用，适配人形机器人 376 维高维观测 + 连续关节力矩控制的特性，相比 PPO 降低约 20% 的样本采集量，保证探索性的同时提升策略鲁棒性；</p>
+</li>
+<li>
+<p><strong>双Critic网络</strong>：缓解过估计问题，提升价值函数评估精度；</p>
+</li>
+<li>
+<p><strong>自动熵调整</strong>：自适应平衡探索（熵）与利用（奖励），无需手动调参。</p>
+</li>
+</ol>
 <h3 id="52">5.2 关键优化手段</h3>
 <table>
 <thead>
@@ -269,37 +279,36 @@ def set_solver_iter(env, n_iter):
 </code></pre>
 <h3 id="62-permissionerror">6.2 权重加载失败（PermissionError / 路径错误）</h3>
 <ul>
-<li>问题本质：</li>
+<li><strong>问题本质</strong>：</li>
 </ul>
 <p>1.权重文件路径硬编码（如/root/models/），跨机器运行时路径不存在；</p>
 <p>2.直接读取压缩包目录而非解压后的.pth文件，触发权限拒绝。</p>
 <ul>
-<li>解决思路：</li>
+<li><strong>解决思路</strong>：</li>
 </ul>
 <p>1.路径归一化：使用os.path.abspath()+os.path.join()构建绝对路径；</p>
 <p>2.自动解压：通过zipfile.ZipFile解压权重包至临时目录，加载完成后清理；</p>
 <p>3.权限兼容：添加try-except捕获权限错误，提示用户以非管理员 / 管理员模式运行。</p>
 <h3 id="63-missing-keys">6.3 模型参数不匹配（Missing key(s)）</h3>
 <ul>
-<li>
-<p>问题本质：训练环境与部署环境的网络分支命名不一致（如训练时加了v2后缀，部署时无），导致权重键名不匹配。</p>
-</li>
-<li>
-<p>解决思路：</p>
-</li>
+<li><strong>问题本质</strong>：</li>
+</ul>
+<p>训练环境与部署环境的网络分支命名不一致（如训练时加了v2后缀，部署时无），导致权重键名不匹配。</p>
+<ul>
+<li><strong>解决思路</strong>：</li>
 </ul>
 <p>1.非严格加载：torch.load(weights_path, map_location="cpu", strict=False)；</p>
 <p>2.权重键名映射：手动对齐核心网络（actor/critic）的键名，忽略辅助分支（如日志记录分支）；</p>
 <p>3.验证：加载后打印网络参数形状，确认核心层参数匹配。</p>
 <h3 id="64">6.4 机器人原地高频抖动</h3>
 <ul>
-<li>问题根源分析：</li>
+<li><strong>问题根源分析</strong>：</li>
 </ul>
 <p>1.动作输出幅值过大：策略输出的关节力矩超出物理仿真稳定范围；</p>
 <p>2.策略探索噪声：测试阶段未关闭探索，动作随机性高；</p>
 <p>3.奖励函数单一：仅关注前移距离，未惩罚关节高频变化。</p>
 <ul>
-<li>分层解决：</li>
+<li><strong>分层解决</strong>：</li>
 </ul>
 <p>1.短期：动作限幅（action_scale）+ 确定性推理（deterministic=True）；</p>
 <p>2.中期：奖励函数加入关节平滑项；</p>
