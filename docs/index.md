@@ -44,6 +44,8 @@ title: 主页
 
 [__高斯混合__](gaussian_mixture.md)
 
+[__高斯混合改进__](./chap11_gaussian_mixture/README.md)
+
 [__受限玻尔兹曼机__](RBM.md)
 
 [__强化学习__](RL.md)
